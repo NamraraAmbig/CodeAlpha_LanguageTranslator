@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Language Translator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            width: 350px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 80px;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            resize: none;
+        }
+
+        .dropdowns {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 10px;
+        }
+
+        select {
+            width: 48%;
+            padding: 8px;
+            border-radius: 8px;
+        }
+
+        .buttons {
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 8px 12px;
+            margin: 5px;
+            border: none;
+            border-radius: 8px;
+            background: #667eea;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #5a67d8;
+        }
+
+        #outputText {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            min-height: 40px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>🌐 Translator</h2>
+
+    <textarea id="inputText" placeholder="Enter text"></textarea>
+
+    <div class="dropdowns">
+        <select id="sourceLang">
+            <option value="en">English</option>
+            <option value="hi">Hindi</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+        </select>
+
+        <select id="targetLang">
+            <option value="hi">Hindi</option>
+            <option value="en">English</option>
+            <option value="ta">Tamil</option>
+            <option value="te">Telugu</option>
+        </select>
+    </div>
+
+    <div class="buttons">
+        <button onclick="translateText()">Translate</button>
+        <button onclick="copyText()">Copy</button>
+        <button onclick="speakText()">🔊</button>
+        <button onclick="startListening()">🎤</button>
+    </div>
+
+    <div id="outputText">Translation will appear here...</div>
+</div>
+
+<script>
+async function translateText() {
+    let text = document.getElementById("inputText").value.trim();
+    let source = document.getElementById("sourceLang").value;
+    let target = document.getElementById("targetLang").value;
+
+    if (text === "") {
+        alert("Please enter text");
+        return;
+    }
+
+    let url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text)}&langpair=${source}|${target}`;
+
+    try {
+        let response = await fetch(url);
+        let data = await response.json();
+        document.getElementById("outputText").innerText =
+            data.responseData.translatedText;
+    } catch {
+        document.getElementById("outputText").innerText = "Error in translation";
+    }
+}
+
+function copyText() {
+    let text = document.getElementById("outputText").innerText;
+    navigator.clipboard.writeText(text);
+    alert("Copied!");
+}
+
+function speakText() {
+    let text = document.getElementById("outputText").innerText;
+    let speech = new SpeechSynthesisUtterance(text);
+    window.speechSynthesis.speak(speech);
+}
+
+function startListening() {
+    const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+    recognition.start();
+
+    recognition.onresult = function(event) {
+        document.getElementById("inputText").value =
+            event.results[0][0].transcript;
+    };
+}
+</script>
+
+</body>
+</html>
