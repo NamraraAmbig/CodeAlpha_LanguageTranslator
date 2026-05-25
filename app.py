@@ -1,9 +1,7 @@
 import streamlit as st
-from googletrans import Translator
+from deep_translator import GoogleTranslator
 
 st.title("Language Translator")
-
-translator = Translator()
 
 text = st.text_area("Enter text")
 
@@ -18,5 +16,9 @@ languages = {
 language = st.selectbox("Select Language", list(languages.keys()))
 
 if st.button("Translate"):
-    translated = translator.translate(text, dest=languages[language])
-    st.success(translated.text)
+    translated = GoogleTranslator(
+        source='auto',
+        target=languages[language]
+    ).translate(text)
+
+    st.success(translated)
